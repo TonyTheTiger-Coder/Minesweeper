@@ -4,6 +4,7 @@
 
 #ifndef EASY_H
 #define EASY_H
+
 void difficulty();
 //floodfill algorithm
 inline void Easy()
@@ -12,7 +13,13 @@ inline void Easy()
     int rows;
     int columns;
     bool grid[10][10]={false};
+    bool selected[10][10]={false};
+    bool flagged[10][10]={false};
+    int gameOver=0;
     int mines=0;
+    int score=0;
+    std::stringstream ss;
+    ss << score;
     while (mines<10)
     {
         rows=rand()%10;
@@ -24,6 +31,12 @@ inline void Easy()
         }
     }
     sf :: RenderWindow easy;
+    sf::Font font("../../src/CascadiaCode.ttf");
+    sf::Text Score(font);
+    Score.setCharacterSize(50);
+    Score.setPosition({911.f,225.f});
+    Score.setFillColor(sf::Color::Black);
+    Score.setString(ss.str());
     easy.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     easy.setFramerateLimit(60);
     while (easy.isOpen())
@@ -50,6 +63,48 @@ inline void Easy()
                 {
                     easy.close();
                     Easy();
+                }
+
+            }
+            else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
+            {
+                if (mouseButtonReleased->button == sf::Mouse::Button::Right)
+                {
+                    for (rows=0; rows<10; rows++)
+                    {
+                        for (columns=0; columns<10; columns++)
+                        {
+                            if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
+                            {
+                                flagged[rows][columns]=true;
+                            }
+                            else if (gameOver==0 && flagged[rows][columns]==true && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
+                            {
+                                flagged[rows][columns]=false;
+                            }
+                        }
+                    }
+                }
+                if (mouseButtonReleased->button == sf::Mouse::Button::Left)
+                {
+                    for (rows=0; rows<10; rows++)
+                    {
+                        for (columns=0; columns<10; columns++)
+                        {
+                            if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
+                            {
+
+                                if (!grid[rows][columns] && !selected[rows][columns])
+                                {
+                                    score+=100;
+                                    ss.str(std::string());
+                                    ss << score;
+                                    Score.setString(ss.str());
+                                }
+                                selected[rows][columns]=true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -149,12 +204,86 @@ inline void Easy()
                 }
             }
         }
-        sf :: Texture Square("../../src/emptySquareEasy.png", false, sf :: IntRect({0,0},{50,50}));
-        Square.setRepeated(true);
-        sf::Sprite square(Square);
-        square.setTextureRect(sf::IntRect({0,0},{500,500}));
-        square.setPosition({712.f, 289.f});
-        easy.draw(square);
+        for (rows=0; rows<10; rows++)
+        {
+            for (columns=0; columns<10; columns++)
+            {
+                if (selected[rows][columns] == false)
+                {
+                    sf :: Texture Square("../../src/emptySquareEasy.png", false, sf :: IntRect({0,0},{50,50}));
+                    sf::Sprite square(Square);
+                    square.setPosition({712.f+(50*rows), 289.f+(50*columns)});
+                    easy.draw(square);
+                }
+            }
+        }
+        for (rows=0; rows<10; rows++)
+        {
+            for (columns=0; columns<10; columns++)
+            {
+                if (flagged[rows][columns] == true && selected[rows][columns] == false)
+                {
+                    sf :: Texture Flag("../../src/minFlagEasy.png", false, sf :: IntRect({0,0},{50,50}));
+                    sf::Sprite flag(Flag);
+                    flag.setPosition({712.f+(50*rows), 289.f+(50*columns)});
+                    easy.draw(flag);
+                }
+            }
+        }
+        for (rows=0; rows<10; rows++)
+        {
+            for (columns=0; columns<10; columns++)
+            {
+                if (selected[rows][columns] == true && grid[rows][columns] == true)
+                    gameOver=1;
+            }
+        }
+        if (gameOver != 1)
+        {
+            for (rows=0; rows<10; rows++)
+            {
+                for (columns=0; columns<10; columns++)
+                {
+                    if (selected[rows][columns] == true && grid[rows][columns] == false)
+                    {
+                        gameOver=2;
+                    }
+                    else if (selected[rows][columns] == false && grid[rows][columns] == false)
+                    {
+                        gameOver=0;
+                        break;
+                    }
+                }
+                if (gameOver==0)
+                    break;
+            }
+        }
+        switch (gameOver)
+        {
+            case 1:
+                for (rows=0; rows<10; rows++)
+                {
+                    for (columns=0; columns<10; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture Mine("../../src/mineEasy.png", false, sf :: IntRect({0,0},{50,50}));
+                            sf::Sprite mine(Mine);
+                            mine.setPosition({712.f+(50*rows),289.f+(50*columns)});
+                            easy.draw(mine);
+                        }
+                    }
+                }
+                break;
+            case 2:
+                sf::Text win(font);
+                win.setString("You R Win");
+                win.setCharacterSize(50);
+                win.setFillColor(sf::Color::Black);
+                win.setPosition({250.f,300.f});
+                easy.draw(win);
+        }
+        easy.draw(Score);
         if (sf::Mouse::getPosition(easy).x >=17 && sf::Mouse::getPosition(easy).x <=189 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
         {
             sf :: Texture HighlightedBackButton("../../src/backButtonHighlighted.png", false, sf :: IntRect({0,0},{173,77}));
@@ -213,4 +342,5 @@ int countMinesEasy(bool grid[10][10], int rows, int columns)
         }
     return count;
 }
+
 #endif //EASY.h

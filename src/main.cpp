@@ -8,6 +8,8 @@
 #include "Demolition.h"
 #include "Title.h"
 #include "Difficulty.h"
+#include <string>
+#include <sstream>
 int main()
 {
     title();
