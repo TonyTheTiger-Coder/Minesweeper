@@ -6,10 +6,10 @@
 #define EASY_H
 
 void difficulty();
-//floodfill algorithm
 inline void Easy()
 {
     int countMinesEasy(bool grid[10][10], int rows, int columns);
+    int floodEasy(bool grid[10][10], bool selected[10][10], int rows, int columns);
     int rows;
     int columns;
     bool grid[10][10]={false};
@@ -93,7 +93,6 @@ inline void Easy()
                         {
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
                             {
-
                                 if (!grid[rows][columns] && !selected[rows][columns])
                                 {
                                     score+=100;
@@ -191,6 +190,13 @@ inline void Easy()
                             sf::Sprite empty(Empty);
                             empty.setPosition({712.f+(50*rows),289.f+(50*columns)});
                             easy.draw(empty);
+                            if (selected[rows][columns])
+                            {
+                                score+=floodEasy(grid, selected, rows, columns);
+                                ss.str(std::string());
+                                ss << score;
+                                Score.setString(ss.str());
+                            }
                             break;
                         }
                     }
@@ -342,5 +348,34 @@ int countMinesEasy(bool grid[10][10], int rows, int columns)
         }
     return count;
 }
-
+int floodEasy(bool grid[10][10], bool selected[10][10], int rows, int columns)
+{
+    int score=0;
+    int checkHorizontal;
+    int checkVertical;
+    for (int horizontal=-1;horizontal<=1;horizontal++)
+    {
+        for (int vertical=-1;vertical<=1;vertical++)
+        {
+            if (horizontal==0 && vertical==0)
+            {
+                continue;
+            }
+            else
+            {
+                checkHorizontal=rows+horizontal;
+                checkVertical=columns+vertical;
+            }
+            if ((checkHorizontal >=0 && checkHorizontal<10) && (checkVertical >=0 && checkVertical<10))
+            {
+                if (!grid[checkHorizontal][checkVertical])
+                {
+                    selected[checkHorizontal][checkVertical]=true;
+                    score+=100;
+                }
+            }
+        }
+    }
+    return score;
+}
 #endif //EASY.h
