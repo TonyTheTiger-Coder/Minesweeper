@@ -4,7 +4,6 @@
 #ifndef DEMOLITION_H
 #define DEMOLITION_H
 void title();
-//floodfill algorithm
 inline void Demolition()
 {
     int countMinesDemolition(bool grid[20][20], int rows, int columns);
@@ -64,25 +63,20 @@ inline void Demolition()
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     demolition.close();
             }
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(demolition);
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-                if (sf::Mouse::getPosition(demolition).x >=17 && sf::Mouse::getPosition(demolition).x <=189 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
-                {
-                    demolition.close();
-                    title();
-                }
-                else if (sf::Mouse::getPosition(demolition).x >=1731 && sf::Mouse::getPosition(demolition).x <=1901 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
-                {
-                    demolition.close();
-                    Demolition();
-                }
-            }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
+                    if (sf::Mouse::getPosition(demolition).x >=17 && sf::Mouse::getPosition(demolition).x <=189 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
+                    {
+                        demolition.close();
+                        title();
+                    }
+                    else if (sf::Mouse::getPosition(demolition).x >=1731 && sf::Mouse::getPosition(demolition).x <=1901 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
+                    {
+                        demolition.close();
+                        Demolition();
+                    }
                     for (rows=0; rows<20; rows++)
                     {
                         for (columns=0; columns<20; columns++)

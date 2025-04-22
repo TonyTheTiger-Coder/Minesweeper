@@ -1,7 +1,6 @@
 //
 // Created by willw on 04/15/2025.
 //
-
 #ifndef DIFFICULTY_H
 #define DIFFICULTY_H
 #include "Easy.h"
@@ -25,21 +24,16 @@ inline void difficulty()
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     difficulty.close();
             }
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(difficulty);
-                if (sf::Mouse::getPosition(difficulty).x >=17 && sf::Mouse::getPosition(difficulty).x <=189 && sf::Mouse::getPosition(difficulty).y >=14 && sf::Mouse::getPosition(difficulty).y <=89)
-                {
-                    difficulty.close();
-                    title();
-                }
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-            }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
-                    if ((sf::Mouse::getPosition(difficulty).x >=746 && sf::Mouse::getPosition(difficulty).x <=1170) && (sf::Mouse::getPosition(difficulty).y >= 189 && sf::Mouse::getPosition(difficulty).y <=319))
+                    if (sf::Mouse::getPosition(difficulty).x >=17 && sf::Mouse::getPosition(difficulty).x <=189 && sf::Mouse::getPosition(difficulty).y >=14 && sf::Mouse::getPosition(difficulty).y <=89)
+                    {
+                        difficulty.close();
+                        title();
+                    }
+                    else if ((sf::Mouse::getPosition(difficulty).x >=746 && sf::Mouse::getPosition(difficulty).x <=1170) && (sf::Mouse::getPosition(difficulty).y >= 189 && sf::Mouse::getPosition(difficulty).y <=319))
                     {
                         difficulty.close();
                         Easy();

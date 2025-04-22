@@ -10,8 +10,6 @@
 #include "Difficulty.h"
 #include <string>
 #include <sstream>
-//get rid of cout mouse position in header files
-//make all buttons work on mouse button released rather than pressed
 int main()
 {
     title();

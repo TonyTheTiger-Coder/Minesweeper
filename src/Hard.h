@@ -4,7 +4,6 @@
 #ifndef HARD_H
 #define HARD_H
 void difficulty();
-//floodfill algorithm
 inline void Hard()
 {
     int countMinesHard(bool grid[30][30], int rows, int columns);
@@ -50,21 +49,6 @@ inline void Hard()
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     hard.close();
             }
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(hard);
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-                if (sf::Mouse::getPosition(hard).x >=17 && sf::Mouse::getPosition(hard).x <=189 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
-                {
-                    hard.close();
-                    difficulty();
-                }
-                else if (sf::Mouse::getPosition(hard).x >=1731 && sf::Mouse::getPosition(hard).x <=1901 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
-                {
-                    hard.close();
-                    Hard();
-                }
-            }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
@@ -86,6 +70,16 @@ inline void Hard()
                 }
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
+                    if (sf::Mouse::getPosition(hard).x >=17 && sf::Mouse::getPosition(hard).x <=189 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
+                    {
+                        hard.close();
+                        difficulty();
+                    }
+                    else if (sf::Mouse::getPosition(hard).x >=1731 && sf::Mouse::getPosition(hard).x <=1901 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
+                    {
+                        hard.close();
+                        Hard();
+                    }
                     for (rows=0; rows<30; rows++)
                     {
                         for (columns=0; columns<30; columns++)

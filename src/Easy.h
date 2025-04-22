@@ -1,10 +1,8 @@
 //
 // Created by willw on 04/07/2025.
 //
-
 #ifndef EASY_H
 #define EASY_H
-
 void difficulty();
 inline void Easy()
 {
@@ -51,22 +49,6 @@ inline void Easy()
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     easy.close();
             }
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(easy);
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-                if (sf::Mouse::getPosition(easy).x >=17 && sf::Mouse::getPosition(easy).x <=189 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
-                {
-                    easy.close();
-                    difficulty();
-                }
-                else if (sf::Mouse::getPosition(easy).x >=1731 && sf::Mouse::getPosition(easy).x <=1901 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
-                {
-                    easy.close();
-                    Easy();
-                }
-
-            }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
@@ -88,6 +70,16 @@ inline void Easy()
                 }
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
+                    if (sf::Mouse::getPosition(easy).x >=17 && sf::Mouse::getPosition(easy).x <=189 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
+                    {
+                        easy.close();
+                        difficulty();
+                    }
+                    else if (sf::Mouse::getPosition(easy).x >=1731 && sf::Mouse::getPosition(easy).x <=1901 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
+                    {
+                        easy.close();
+                        Easy();
+                    }
                     for (rows=0; rows<10; rows++)
                     {
                         for (columns=0; columns<10; columns++)

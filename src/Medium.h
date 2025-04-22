@@ -4,7 +4,6 @@
 #ifndef MEDIUM_H
 #define MEDIUM_H
 void difficulty();
-//floodfill algorithm
 inline void Medium()
 {
     int countMinesMedium(bool grid[20][20], int rows, int columns);
@@ -50,21 +49,6 @@ inline void Medium()
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     medium.close();
             }
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(medium);
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-                if (sf::Mouse::getPosition(medium).x >=17 && sf::Mouse::getPosition(medium).x <=189 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
-                {
-                    medium.close();
-                    difficulty();
-                }
-                else if (sf::Mouse::getPosition(medium).x >=1731 && sf::Mouse::getPosition(medium).x <=1901 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
-                {
-                    medium.close();
-                    Medium();
-                }
-            }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
@@ -86,6 +70,16 @@ inline void Medium()
                 }
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
+                    if (sf::Mouse::getPosition(medium).x >=17 && sf::Mouse::getPosition(medium).x <=189 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
+                    {
+                        medium.close();
+                        difficulty();
+                    }
+                    else if (sf::Mouse::getPosition(medium).x >=1731 && sf::Mouse::getPosition(medium).x <=1901 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
+                    {
+                        medium.close();
+                        Medium();
+                    }
                     for (rows=0; rows<20; rows++)
                     {
                         for (columns=0; columns<20; columns++)

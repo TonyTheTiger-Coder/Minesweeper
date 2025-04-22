@@ -1,7 +1,6 @@
 //
 // Created by willw on 04/15/2025.
 //
-
 #ifndef TITLE_H
 #define TITLE_H
 #include <SFML/Window.hpp>
@@ -17,7 +16,6 @@ inline void title()
     while (title.isOpen())
     {
         bool mouseHoverPlay,mouseHoverDemolition,mouseHoverExit;
-
         // check all the window's events that were triggered since the last iteration of the loop
         while (const std :: optional event = title.pollEvent())
         {
@@ -31,25 +29,24 @@ inline void title()
                     title.close();
             }
             //sets up invisible buttons that the user can click for the desired action
-            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) )
+            else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(title);
-                std::cout << localPosition.x << " " << localPosition.y << std::endl;
-                //if exit game is clicked
-                if ((localPosition.x >= 753 && localPosition.x <=1177) && (localPosition.y >= 953 && localPosition.y <=1044))
-                    title.close();
-                //if demolition is clicked
-                else if ((localPosition.x >= 752 && localPosition.x <= 1178) && (localPosition.y >= 817 && localPosition.y <= 910))
+                if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
-                    title.close();
-                    Demolition();
-                }
-                //if play game is clicked
-                else if ((localPosition.x >= 751 && localPosition.x <=1175) && (localPosition.y >= 680 && localPosition.y <=780))
-                {
-                    title.close();
-                    difficulty();
-
+                    if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=680 && sf::Mouse::getPosition(title).y <=780)
+                    {
+                        title.close();
+                        difficulty();
+                    }
+                    else if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=817 && sf::Mouse::getPosition(title).y <=910)
+                    {
+                        title.close();
+                        Demolition();
+                    }
+                    else if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=953 && sf::Mouse::getPosition(title).y <=1044)
+                    {
+                        title.close();
+                    }
                 }
             }
             //finds position of mouse whenever it is moved in order to highlight buttons
