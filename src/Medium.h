@@ -42,7 +42,7 @@ inline void Medium()
     Score.setPosition({849.f,110.f});
     Score.setFillColor(sf::Color::Black);
     Score.setString(scoreStream.str());
-    medium.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    medium.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     medium.setFramerateLimit(60);
     while (medium.isOpen())
     {

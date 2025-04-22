@@ -54,7 +54,7 @@ inline void Demolition()
     Lives.setPosition({1250.f,115.f});
     Lives.setFillColor(sf::Color::Black);
     Lives.setString(livesStream.str());
-    demolition.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    demolition.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     demolition.setFramerateLimit(60);
     while (demolition.isOpen())
     {

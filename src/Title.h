@@ -10,7 +10,7 @@
 inline void title()
 {
     sf :: RenderWindow title;
-    title.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    title.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     title.setFramerateLimit(60);
     while (title.isOpen())
     {

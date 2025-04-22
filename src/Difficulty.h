@@ -10,7 +10,7 @@ void title();
 inline void difficulty()
 {
     sf :: RenderWindow difficulty;
-    difficulty.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    difficulty.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     difficulty.setFramerateLimit(60);
     while (difficulty.isOpen())
     {

@@ -42,7 +42,7 @@ inline void Easy()
     Score.setPosition({911.f,225.f});
     Score.setFillColor(sf::Color::Black);
     Score.setString(scoreStream.str());
-    easy.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    easy.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     easy.setFramerateLimit(60);
     while (easy.isOpen())
     {

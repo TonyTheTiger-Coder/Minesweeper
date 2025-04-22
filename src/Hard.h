@@ -42,7 +42,7 @@ inline void Hard()
     Score.setPosition({765.f,10.f});
     Score.setFillColor(sf::Color::Black);
     Score.setString(scoreStream.str());
-    hard.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
+    hard.create(sf :: VideoMode({1920,1080}), "MINESWEEPER", sf :: State :: Fullscreen);
     hard.setFramerateLimit(60);
     while (hard.isOpen())
     {
