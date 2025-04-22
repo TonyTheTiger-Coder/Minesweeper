@@ -8,11 +8,12 @@ void difficulty();
 inline void Medium()
 {
     int countMinesMedium(bool grid[20][20], int rows, int columns);
-    int floodMedium(bool grid[20][20], bool selected[20][20], int rows, int columns);
+    int floodMedium(bool grid[20][20], bool selected[20][20], bool scored[20][20], int rows, int columns);
     int rows;
     int columns;
     bool grid[20][20]={false};
     bool selected[20][20]={false};
+    bool scored[20][20]={false};
     bool flagged[20][20]={false};
     int gameOver=0;
     int mines=0;
@@ -113,7 +114,6 @@ inline void Medium()
         {
             for (columns=0; columns<20; columns++)
             {
-
                 if (grid[rows][columns] == false)
                 {
                     int mineCount=countMinesMedium(grid,rows,columns);
@@ -191,7 +191,7 @@ inline void Medium()
                             medium.draw(empty);
                             if (selected[rows][columns])
                             {
-                                score+=floodMedium(grid, selected, rows, columns);
+                                score+=floodMedium(grid, selected, scored, rows, columns);
                                 ss.str(std::string());
                                 ss << score;
                                 Score.setString(ss.str());
@@ -281,12 +281,19 @@ inline void Medium()
                 }
                 break;
             case 2:
-                sf::Text win(font);
-                win.setString("You R Win");
-                win.setCharacterSize(50);
-                win.setFillColor(sf::Color::Black);
-                win.setPosition({250.f,300.f});
-                medium.draw(win);
+                for (rows=0; rows<20; rows++)
+                {
+                    for (columns=0; columns<20; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture MineWin("../../src/mineWinMedium.png", false, sf :: IntRect({0,0},{35,35}));
+                            sf::Sprite mineWin(MineWin);
+                            mineWin.setPosition({610.f+(35*rows),190.f+(35*columns)});
+                            medium.draw(mineWin);
+                        }
+                    }
+                }
         }
         medium.draw(Score);
         if (sf::Mouse::getPosition(medium).x >=17 && sf::Mouse::getPosition(medium).x <=189 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
@@ -345,7 +352,7 @@ int countMinesMedium(bool grid[20][20], int rows, int columns)
     }
     return count;
 }
-int floodMedium(bool grid[20][20], bool selected[20][20], int rows, int columns)
+int floodMedium(bool grid[20][20], bool selected[20][20], bool scored[20][20], int rows, int columns)
 {
     int score=0;
     int checkHorizontal;
@@ -365,9 +372,10 @@ int floodMedium(bool grid[20][20], bool selected[20][20], int rows, int columns)
             }
             if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
             {
-                if (!grid[checkHorizontal][checkVertical])
+                if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;
+                    scored[checkHorizontal][checkVertical]=true;
                     score+=100;
                 }
             }

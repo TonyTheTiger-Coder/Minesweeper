@@ -8,10 +8,21 @@ void title();
 inline void Demolition()
 {
     int countMinesDemolition(bool grid[20][20], int rows, int columns);
+    void floodDemolition(bool grid[20][20], bool selected[20][20], int rows, int columns);
     int rows;
     int columns;
     bool grid[20][20]={false};
+    bool selected[20][20]={false};
+    bool scored[20][20]={false};
+    int gameOver=0;
     int mines=0;
+    int score=0;
+    int lives=5;
+    int clicks=0;
+    std::stringstream ss;
+    ss << score;
+    std::stringstream ll;
+    ll << lives;
     while (mines<60)
     {
         rows=rand()%20;
@@ -23,6 +34,22 @@ inline void Demolition()
         }
     }
     sf :: RenderWindow demolition;
+    sf::Font font("../../src/CascadiaCode.ttf");
+    sf::Text Score(font);
+    Score.setCharacterSize(55);
+    Score.setPosition({849.f,110.f});
+    Score.setFillColor(sf::Color::Black);
+    Score.setString(ss.str());
+    sf::Text LivesLeft(font);
+    LivesLeft.setCharacterSize(55);
+    LivesLeft.setPosition({1040.f,110.f});
+    LivesLeft.setFillColor(sf::Color::Black);
+    LivesLeft.setString("Lives:");
+    sf::Text Lives(font);
+    Lives.setCharacterSize(50);
+    Lives.setPosition({1250.f,115.f});
+    Lives.setFillColor(sf::Color::Black);
+    Lives.setString(ll.str());
     demolition.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     demolition.setFramerateLimit(60);
     while (demolition.isOpen())
@@ -52,8 +79,39 @@ inline void Demolition()
                     Demolition();
                 }
             }
+            else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
+            {
+                if (mouseButtonReleased->button == sf::Mouse::Button::Left)
+                {
+                    for (rows=0; rows<20; rows++)
+                    {
+                        for (columns=0; columns<20; columns++)
+                        {
+                            if (gameOver==0 && clicks!=0 && sf::Mouse::getPosition(demolition).x >=610+(rows*35) && sf::Mouse::getPosition(demolition).x <=610+(1+rows)*35 && sf::Mouse::getPosition(demolition).y >=190+(columns*35) && sf::Mouse::getPosition(demolition).y <=190+(1+columns)*35)
+                            {
+                                if (!grid[rows][columns] && !selected[rows][columns])
+                                {
+                                    lives-=1;
+                                    ll.str(std::string());
+                                    ll << lives;
+                                    Lives.setString(ll.str());
+                                }
+                                selected[rows][columns]=true;
+                            }
+                            else if (gameOver==0 && clicks==0 && sf::Mouse::getPosition(demolition).x >=610+(rows*35) && sf::Mouse::getPosition(demolition).x <=610+(1+rows)*35 && sf::Mouse::getPosition(demolition).y >=190+(columns*35) && sf::Mouse::getPosition(demolition).y <=190+(1+columns)*35)
+                            {
+                                selected[rows][columns]=true;
+                                clicks++;
+                            }
+                        }
+                    }
+                }
+            }
         }
         demolition.clear(sf :: Color :: Black);
+        sf :: Texture texture("../../src/Minesweeper_demolition.png", false, sf :: IntRect({0,0},{1920,1080}));
+        sf::Sprite sprite(texture);
+        demolition.draw(sprite);
         for (rows=0; rows<20; rows++)
         {
             for (columns=0; columns<20; columns++)
@@ -133,6 +191,10 @@ inline void Demolition()
                             sf::Sprite empty(Empty);
                             empty.setPosition({610.f+(35*rows),190.f+(35*columns)});
                             demolition.draw(empty);
+                            if (selected[rows][columns])
+                            {
+                                floodDemolition(grid, selected, rows, columns);
+                            }
                             break;
                         }
                     }
@@ -143,18 +205,95 @@ inline void Demolition()
                     sf::Sprite mine(Mine);
                     mine.setPosition({610.f+(35*rows),190.f+(35*columns)});
                     demolition.draw(mine);
+                    if (selected[rows][columns] && !scored[rows][columns])
+                    {
+                        scored[rows][columns] = true;
+                        score+=500;
+                        ss.str(std::string());
+                        ss << score;
+                        Score.setString(ss.str());
+                        floodDemolition(grid, selected, rows, columns);
+                    }
                 }
             }
         }
-        sf :: Texture texture("../../src/Minesweeper_demolition.png", false, sf :: IntRect({0,0},{1920,1080}));
-        sf::Sprite sprite(texture);
-        demolition.draw(sprite);
-        sf :: Texture Square("../../src/emptySquareMedium.png", false, sf :: IntRect({0,0},{35,35}));
-        Square.setRepeated(true);
-        sf::Sprite square(Square);
-        square.setTextureRect(sf::IntRect({0,0},{700,700}));
-        square.setPosition({610, 190});
-        demolition.draw(square);
+
+        for (rows=0; rows<20; rows++)
+        {
+            for (columns=0; columns<20; columns++)
+            {
+                if (selected[rows][columns] == false)
+                {
+                    sf :: Texture Square("../../src/emptySquareMedium.png", false, sf :: IntRect({0,0},{35,35}));
+                    sf::Sprite square(Square);
+                    square.setPosition({610.f+(35*rows), 190.f+(35*columns)});
+                    demolition.draw(square);
+                }
+            }
+        }
+        for (rows=0; rows<20; rows++)
+        {
+            for (columns=0; columns<20; columns++)
+            {
+                if (selected[rows][columns] == true && grid[rows][columns] == false && lives<=0)
+                    gameOver=1;
+            }
+        }
+        if (gameOver != 1)
+        {
+            for (rows=0; rows<20; rows++)
+            {
+                for (columns=0; columns<20; columns++)
+                {
+                    if (selected[rows][columns] == true && grid[rows][columns] == true)
+                    {
+                        gameOver=2;
+                    }
+                    else if (selected[rows][columns] == false && grid[rows][columns] == true)
+                    {
+                        gameOver=0;
+                        break;
+                    }
+                }
+                if (gameOver==0)
+                    break;
+            }
+        }
+        switch (gameOver)
+        {
+            case 1:
+                for (rows=0; rows<20; rows++)
+                {
+                    for (columns=0; columns<20; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture Mine("../../src/mineMedium.png", false, sf :: IntRect({0,0},{35,35}));
+                            sf::Sprite mine(Mine);
+                            mine.setPosition({610.f+(35*rows),190.f+(35*columns)});
+                            demolition.draw(mine);
+                        }
+                    }
+                }
+            break;
+            case 2:
+                for (rows=0; rows<20; rows++)
+                {
+                    for (columns=0; columns<20; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture MineWin("../../src/mineWinMedium.png", false, sf :: IntRect({0,0},{35,35}));
+                            sf::Sprite mineWin(MineWin);
+                            mineWin.setPosition({610.f+(35*rows),190.f+(35*columns)});
+                            demolition.draw(mineWin);
+                        }
+                    }
+                }
+        }
+        demolition.draw(Score);
+        demolition.draw(LivesLeft);
+        demolition.draw(Lives);
         if (sf::Mouse::getPosition(demolition).x >=17 && sf::Mouse::getPosition(demolition).x <=189 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
         {
             sf :: Texture HighlightedBackButton("../../src/backButtonHighlighted.png", false, sf :: IntRect({0,0},{173,77}));
@@ -210,5 +349,32 @@ int countMinesDemolition(bool grid[20][20], int rows, int columns)
         }
     }
     return count;
+}
+void floodDemolition(bool grid[20][20], bool selected[20][20], int rows, int columns)
+{
+    int checkHorizontal;
+    int checkVertical;
+    for (int horizontal=-1;horizontal<=1;horizontal++)
+    {
+        for (int vertical=-1;vertical<=1;vertical++)
+        {
+            if (horizontal==0 && vertical==0)
+            {
+                continue;
+            }
+            else
+            {
+                checkHorizontal=rows+horizontal;
+                checkVertical=columns+vertical;
+            }
+            if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
+            {
+                if (!grid[checkHorizontal][checkVertical])
+                {
+                    selected[checkHorizontal][checkVertical]=true;
+                }
+            }
+        }
+    }
 }
 #endif //DEMOLITION_H

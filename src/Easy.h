@@ -9,11 +9,12 @@ void difficulty();
 inline void Easy()
 {
     int countMinesEasy(bool grid[10][10], int rows, int columns);
-    int floodEasy(bool grid[10][10], bool selected[10][10], int rows, int columns);
+    int floodEasy(bool grid[10][10], bool selected[10][10], bool scored[10][10], int rows, int columns);
     int rows;
     int columns;
     bool grid[10][10]={false};
     bool selected[10][10]={false};
+    bool scored[10][10]={false};
     bool flagged[10][10]={false};
     int gameOver=0;
     int mines=0;
@@ -192,7 +193,7 @@ inline void Easy()
                             easy.draw(empty);
                             if (selected[rows][columns])
                             {
-                                score+=floodEasy(grid, selected, rows, columns);
+                                score+=floodEasy(grid, selected, scored, rows, columns);
                                 ss.str(std::string());
                                 ss << score;
                                 Score.setString(ss.str());
@@ -201,6 +202,7 @@ inline void Easy()
                         }
                     }
                 }
+
                 if (grid[rows][columns] == true)
                 {
                     sf :: Texture Mine("../../src/mineEasy.png", false, sf :: IntRect({0,0},{50,50}));
@@ -282,12 +284,19 @@ inline void Easy()
                 }
                 break;
             case 2:
-                sf::Text win(font);
-                win.setString("You R Win");
-                win.setCharacterSize(50);
-                win.setFillColor(sf::Color::Black);
-                win.setPosition({250.f,300.f});
-                easy.draw(win);
+                for (rows=0; rows<10; rows++)
+                {
+                    for (columns=0; columns<10; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture MineWin("../../src/mineWinEasy.png", false, sf :: IntRect({0,0},{50,50}));
+                            sf::Sprite mineWin(MineWin);
+                            mineWin.setPosition({712.f+(50*rows),289.f+(50*columns)});
+                            easy.draw(mineWin);
+                        }
+                    }
+                }
         }
         easy.draw(Score);
         if (sf::Mouse::getPosition(easy).x >=17 && sf::Mouse::getPosition(easy).x <=189 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
@@ -348,7 +357,7 @@ int countMinesEasy(bool grid[10][10], int rows, int columns)
         }
     return count;
 }
-int floodEasy(bool grid[10][10], bool selected[10][10], int rows, int columns)
+int floodEasy(bool grid[10][10], bool selected[10][10], bool scored[10][10], int rows, int columns)
 {
     int score=0;
     int checkHorizontal;
@@ -368,9 +377,10 @@ int floodEasy(bool grid[10][10], bool selected[10][10], int rows, int columns)
             }
             if ((checkHorizontal >=0 && checkHorizontal<10) && (checkVertical >=0 && checkVertical<10))
             {
-                if (!grid[checkHorizontal][checkVertical])
+                if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;
+                    scored[checkHorizontal][checkVertical]=true;
                     score+=100;
                 }
             }

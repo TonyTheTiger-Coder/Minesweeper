@@ -8,11 +8,12 @@ void difficulty();
 inline void Hard()
 {
     int countMinesHard(bool grid[30][30], int rows, int columns);
-    int floodHard(bool grid[30][30], bool selected[30][30], int rows, int columns);
+    int floodHard(bool grid[30][30], bool selected[30][30], bool scored[30][30], int rows, int columns);
     int rows;
     int columns;
     bool grid[30][30]={false};
     bool selected[30][30]={false};
+    bool scored[30][30]={false};
     bool flagged[30][30]={false};
     int gameOver;
     int mines=0;
@@ -190,7 +191,7 @@ inline void Hard()
                             hard.draw(empty);
                             if (selected[rows][columns])
                             {
-                                score=+floodHard(grid, selected, rows, columns);
+                                score=+floodHard(grid, selected, scored, rows, columns);
                                 ss.str(std::string());
                                 ss << score;
                                 Score.setString(ss.str());
@@ -280,12 +281,19 @@ inline void Hard()
                 }
                 break;
             case 2:
-                sf::Text win(font);
-                win.setString("You R Win");
-                win.setCharacterSize(50);
-                win.setFillColor(sf::Color::Black);
-                win.setPosition({250.f,300.f});
-                hard.draw(win);
+                for (rows=0; rows<30; rows++)
+                {
+                    for (columns=0; columns<30; columns++)
+                    {
+                        if (grid[rows][columns] == true)
+                        {
+                            sf :: Texture MineWin("../../src/mineWinHard.png", false, sf :: IntRect({0,0},{30,30}));
+                            sf::Sprite mineWin(MineWin);
+                            mineWin.setPosition({511.f+(30*rows),93.f+(30*columns)});
+                            hard.draw(mineWin);
+                        }
+                    }
+                }
         }
         hard.draw(Score);
         if (sf::Mouse::getPosition(hard).x >=17 && sf::Mouse::getPosition(hard).x <=189 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
@@ -344,7 +352,7 @@ int countMinesHard(bool grid[30][30], int rows, int columns)
     }
     return count;
 }
-int floodHard(bool grid[30][30], bool selected[30][30], int rows, int columns)
+int floodHard(bool grid[30][30], bool selected[30][30], bool scored[30][30], int rows, int columns)
 {
     int score=0;
     int checkHorizontal;
@@ -364,9 +372,10 @@ int floodHard(bool grid[30][30], bool selected[30][30], int rows, int columns)
             }
             if ((checkHorizontal >=0 && checkHorizontal<30) && (checkVertical >=0 && checkVertical<30))
             {
-                if (!grid[checkHorizontal][checkVertical])
+                if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;
+                    scored[checkHorizontal][checkVertical]=true;
                     score+=100;
                 }
             }
