@@ -10,17 +10,23 @@ inline void Easy()
     int floodEasy(bool grid[10][10], bool selected[10][10], bool scored[10][10], int rows, int columns);
     int rows;
     int columns;
+    //grid is used to determine whether a square has a mine or not
     bool grid[10][10]={false};
+    //selected is used to determine whether a user has selected a square or not
     bool selected[10][10]={false};
+    //scored is used to determine whether a selected square triggered by floodEasy has already been scored or not
     bool scored[10][10]={false};
+    //flagged is used to determine whether a user has placed a flag on a square or not
     bool flagged[10][10]={false};
     int gameOver=0;
     int mines=0;
     int score=0;
-    std::stringstream ss;
-    ss << score;
+    std::stringstream scoreStream;
+    scoreStream << score;
+    //places 10 mines
     while (mines<10)
     {
+        //randomly selects a spot on the grid and places a mine if there is not one already
         rows=rand()%10;
         columns=rand()%10;
         if (!grid[rows][columns])
@@ -35,15 +41,17 @@ inline void Easy()
     Score.setCharacterSize(50);
     Score.setPosition({911.f,225.f});
     Score.setFillColor(sf::Color::Black);
-    Score.setString(ss.str());
+    Score.setString(scoreStream.str());
     easy.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     easy.setFramerateLimit(60);
     while (easy.isOpen())
     {
         while (const std :: optional event = easy.pollEvent())
         {
+            //ends program if the user closes the window
             if (event->is<sf :: Event :: Closed>())
                 easy.close();
+            //closes window if the ESC key is pressed
             else if (const auto* keyPressed = event->getIf<sf :: Event :: KeyPressed>())
             {
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
@@ -51,16 +59,19 @@ inline void Easy()
             }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
+                //checks if the user has right-clicked on the grid
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
                 {
                     for (rows=0; rows<10; rows++)
                     {
                         for (columns=0; columns<10; columns++)
                         {
+                            //if square is not currently flagged, place a flag
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
                             {
                                 flagged[rows][columns]=true;
                             }
+                            //if square is currently flagged, then remove the flag
                             else if (gameOver==0 && flagged[rows][columns]==true && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
                             {
                                 flagged[rows][columns]=false;
@@ -68,16 +79,19 @@ inline void Easy()
                         }
                     }
                 }
+                //checks if the user has left-clicked on the grid or on one of the buttons
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
                     if (sf::Mouse::getPosition(easy).x >=17 && sf::Mouse::getPosition(easy).x <=189 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
                     {
                         easy.close();
+                        //difficulty window is reopened
                         difficulty();
                     }
                     else if (sf::Mouse::getPosition(easy).x >=1731 && sf::Mouse::getPosition(easy).x <=1901 && sf::Mouse::getPosition(easy).y >=14 && sf::Mouse::getPosition(easy).y <=89)
                     {
                         easy.close();
+                        //easy window is reopened
                         Easy();
                     }
                     for (rows=0; rows<10; rows++)
@@ -86,12 +100,13 @@ inline void Easy()
                         {
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(easy).x >=712+(rows*50) && sf::Mouse::getPosition(easy).x <=712+(1+rows)*50 && sf::Mouse::getPosition(easy).y >=289+(columns*50) && sf::Mouse::getPosition(easy).y <=289+(1+columns)*50)
                             {
+                                //if the square has not already been selected and there is no mine, then add 100 points
                                 if (!grid[rows][columns] && !selected[rows][columns])
                                 {
                                     score+=100;
-                                    ss.str(std::string());
-                                    ss << score;
-                                    Score.setString(ss.str());
+                                    scoreStream.str(std::string());
+                                    scoreStream << score;
+                                    Score.setString(scoreStream.str());
                                 }
                                 selected[rows][columns]=true;
                             }
@@ -108,9 +123,11 @@ inline void Easy()
         {
             for (columns=0; columns<10; columns++)
             {
+                //if the square is not a mine
                 if (grid[rows][columns]==false)
                 {
                     int mineCount=countMinesEasy(grid,rows,columns);
+                    //switch case for displaying number squares
                     switch (mineCount)
                     {
                         case 1:
@@ -183,18 +200,19 @@ inline void Easy()
                             sf::Sprite empty(Empty);
                             empty.setPosition({712.f+(50*rows),289.f+(50*columns)});
                             easy.draw(empty);
+                            //if an empty square is selected, the floodEasy function is called to select other safe squares near it
                             if (selected[rows][columns])
                             {
                                 score+=floodEasy(grid, selected, scored, rows, columns);
-                                ss.str(std::string());
-                                ss << score;
-                                Score.setString(ss.str());
+                                scoreStream.str(std::string());
+                                scoreStream << score;
+                                Score.setString(scoreStream.str());
                             }
                             break;
                         }
                     }
                 }
-
+                //if the square is a mine
                 if (grid[rows][columns] == true)
                 {
                     sf :: Texture Mine("../../src/mineEasy.png", false, sf :: IntRect({0,0},{50,50}));
@@ -208,6 +226,7 @@ inline void Easy()
         {
             for (columns=0; columns<10; columns++)
             {
+                //if the square is not selected then redraw it over the generated board
                 if (selected[rows][columns] == false)
                 {
                     sf :: Texture Square("../../src/emptySquareEasy.png", false, sf :: IntRect({0,0},{50,50}));
@@ -221,6 +240,7 @@ inline void Easy()
         {
             for (columns=0; columns<10; columns++)
             {
+                //if the user has right-clicked on an unselected square then draw the flag
                 if (flagged[rows][columns] == true && selected[rows][columns] == false)
                 {
                     sf :: Texture Flag("../../src/minFlagEasy.png", false, sf :: IntRect({0,0},{50,50}));
@@ -234,6 +254,7 @@ inline void Easy()
         {
             for (columns=0; columns<10; columns++)
             {
+                //if the user has selected a mine the game ends
                 if (selected[rows][columns] == true && grid[rows][columns] == true)
                     gameOver=1;
             }
@@ -244,10 +265,12 @@ inline void Easy()
             {
                 for (columns=0; columns<10; columns++)
                 {
+                    //if all safe squares are selected the game ends
                     if (selected[rows][columns] == true && grid[rows][columns] == false)
                     {
                         gameOver=2;
                     }
+                    //if any safe squares have not been selected then the game continues
                     else if (selected[rows][columns] == false && grid[rows][columns] == false)
                     {
                         gameOver=0;
@@ -258,8 +281,10 @@ inline void Easy()
                     break;
             }
         }
+        //switch case for both game over possibilities
         switch (gameOver)
         {
+            //game over for loss
             case 1:
                 for (rows=0; rows<10; rows++)
                 {
@@ -275,6 +300,7 @@ inline void Easy()
                     }
                 }
                 break;
+            //game over for win
             case 2:
                 for (rows=0; rows<10; rows++)
                 {
@@ -322,6 +348,7 @@ inline void Easy()
         easy.display();
     }
 }
+//function for counting the number of mines touching a safe square
 int countMinesEasy(bool grid[10][10], int rows, int columns)
 {
     int checkHorizontal;
@@ -332,16 +359,16 @@ int countMinesEasy(bool grid[10][10], int rows, int columns)
             for (int vertical=-1;vertical<=1;vertical++)
             {
                 if (horizontal==0 && vertical==0)
-                {
                     continue;
-                }
                 else
                 {
                     checkHorizontal=rows+horizontal;
                     checkVertical=columns+vertical;
                 }
+                //makes sure the array stays in bounds
                 if ((checkHorizontal >=0 && checkHorizontal<10) && (checkVertical >=0 && checkVertical<10))
                     {
+                        //increases the count whenever a mine is in one of the adjacent spaces
                         if (grid[checkHorizontal][checkVertical])
                             count++;
                     }
@@ -349,6 +376,7 @@ int countMinesEasy(bool grid[10][10], int rows, int columns)
         }
     return count;
 }
+//function for flood filling and scoring safe squares
 int floodEasy(bool grid[10][10], bool selected[10][10], bool scored[10][10], int rows, int columns)
 {
     int score=0;
@@ -367,8 +395,10 @@ int floodEasy(bool grid[10][10], bool selected[10][10], bool scored[10][10], int
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<10) && (checkVertical >=0 && checkVertical<10))
             {
+                //if the square is not a mine and has not already been scored, then that square is selected and then scored
                 if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;

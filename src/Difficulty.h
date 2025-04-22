@@ -15,15 +15,19 @@ inline void difficulty()
     while (difficulty.isOpen())
     {
         bool mouseHoverEasy,mouseHoverMedium,mouseHoverHard;
+        //checks for events that occur while the window is open
         while (const std :: optional event = difficulty.pollEvent())
         {
+            //if the user closes the window the program ends
             if (event->is<sf :: Event :: Closed>())
                 difficulty.close();
+            //closes the window if the user presses the ESC key
             else if (const auto* keyPressed = event->getIf<sf :: Event :: KeyPressed>())
             {
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
                     difficulty.close();
             }
+            //sets up buttons for the user to click
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
@@ -31,21 +35,25 @@ inline void difficulty()
                     if (sf::Mouse::getPosition(difficulty).x >=17 && sf::Mouse::getPosition(difficulty).x <=189 && sf::Mouse::getPosition(difficulty).y >=14 && sf::Mouse::getPosition(difficulty).y <=89)
                     {
                         difficulty.close();
+                        //title window is reopened
                         title();
                     }
                     else if ((sf::Mouse::getPosition(difficulty).x >=746 && sf::Mouse::getPosition(difficulty).x <=1170) && (sf::Mouse::getPosition(difficulty).y >= 189 && sf::Mouse::getPosition(difficulty).y <=319))
                     {
                         difficulty.close();
+                        //easy window opens
                         Easy();
                     }
                     else if ((sf::Mouse::getPosition(difficulty).x >= 747 && sf::Mouse::getPosition(difficulty).x <= 1174) && (sf::Mouse::getPosition(difficulty).y >= 481 && sf::Mouse::getPosition(difficulty).y <= 605))
                     {
                         difficulty.close();
+                        //medium window opens
                         Medium();
                     }
                     else if ((sf::Mouse::getPosition(difficulty).x >= 750 && sf::Mouse::getPosition(difficulty).x <= 1169) && (sf::Mouse::getPosition(difficulty).y >= 743 && sf::Mouse::getPosition(difficulty).y <= 873))
                     {
                         difficulty.close();
+                        //hard window opens
                         Hard();
                     }
                 }

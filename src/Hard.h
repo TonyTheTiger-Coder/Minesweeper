@@ -10,17 +10,23 @@ inline void Hard()
     int floodHard(bool grid[30][30], bool selected[30][30], bool scored[30][30], int rows, int columns);
     int rows;
     int columns;
+    //grid is used to determine whether a square has a mine or not
     bool grid[30][30]={false};
+    //selected is used to determine whether a user has selected a square or not
     bool selected[30][30]={false};
+    //scored is used to determine whether a selected square triggered by floodHard has already been scored or not
     bool scored[30][30]={false};
+    //flagged is used to determine whether a user has placed a flag on a square or not
     bool flagged[30][30]={false};
     int gameOver;
     int mines=0;
     int score=0;
-    std::stringstream ss;
-    ss << score;
+    std::stringstream scoreStream;
+    scoreStream << score;
+    //places 180 mines
     while (mines<180)
     {
+        //randomly selects a spot on the grid and places a mine if there is not one already
         rows=rand()%30;
         columns=rand()%30;
         if (!grid[rows][columns])
@@ -35,15 +41,17 @@ inline void Hard()
     Score.setCharacterSize(60);
     Score.setPosition({765.f,10.f});
     Score.setFillColor(sf::Color::Black);
-    Score.setString(ss.str());
+    Score.setString(scoreStream.str());
     hard.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     hard.setFramerateLimit(60);
     while (hard.isOpen())
     {
         while (const std :: optional event = hard.pollEvent())
         {
+            //ends program if the user closes the window
             if (event->is<sf :: Event :: Closed>())
                 hard.close();
+            //closes window if the ESC key is pressed
             else if (const auto* keyPressed = event->getIf<sf :: Event :: KeyPressed>())
             {
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
@@ -51,16 +59,19 @@ inline void Hard()
             }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
+                //checks if the user has right-clicked on the grid
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
                 {
                     for (rows=0; rows<30; rows++)
                     {
                         for (columns=0; columns<30; columns++)
                         {
+                            //if square is not currently flagged, place a flag
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(hard).x >=511+(rows*30) && sf::Mouse::getPosition(hard).x <=511+(1+rows)*30 && sf::Mouse::getPosition(hard).y >=93+(columns*30) && sf::Mouse::getPosition(hard).y <=93+(1+columns)*30)
                             {
                                 flagged[rows][columns]=true;
                             }
+                            //if square is currently flagged, then remove the flag
                             else if (gameOver==0 && flagged[rows][columns]==true && sf::Mouse::getPosition(hard).x >=511+(rows*30) && sf::Mouse::getPosition(hard).x <=511+(1+rows)*30 && sf::Mouse::getPosition(hard).y >=93+(columns*30) && sf::Mouse::getPosition(hard).y <=93+(1+columns)*30)
                             {
                                 flagged[rows][columns]=false;
@@ -68,16 +79,19 @@ inline void Hard()
                         }
                     }
                 }
+                //checks if the user has left-clicked on the grid or on one of the buttons
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
                     if (sf::Mouse::getPosition(hard).x >=17 && sf::Mouse::getPosition(hard).x <=189 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
                     {
                         hard.close();
+                        //difficulty window is reopened
                         difficulty();
                     }
                     else if (sf::Mouse::getPosition(hard).x >=1731 && sf::Mouse::getPosition(hard).x <=1901 && sf::Mouse::getPosition(hard).y >=14 && sf::Mouse::getPosition(hard).y <=89)
                     {
                         hard.close();
+                        //hard window is reopened
                         Hard();
                     }
                     for (rows=0; rows<30; rows++)
@@ -86,12 +100,13 @@ inline void Hard()
                         {
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(hard).x >=511+(rows*30) && sf::Mouse::getPosition(hard).x <=511+(1+rows)*30 && sf::Mouse::getPosition(hard).y >=93+(columns*30) && sf::Mouse::getPosition(hard).y <=93+(1+columns)*30)
                             {
+                                //if the square has not already been selected and there is no mine, then add 100 points
                                 if (!grid[rows][columns] && !selected[rows][columns])
                                 {
                                     score+=100;
-                                    ss.str(std::string());
-                                    ss << score;
-                                    Score.setString(ss.str());
+                                    scoreStream.str(std::string());
+                                    scoreStream << score;
+                                    Score.setString(scoreStream.str());
                                 }
                                 selected[rows][columns]=true;
                             }
@@ -108,9 +123,11 @@ inline void Hard()
         {
             for (columns=0; columns<30; columns++)
             {
+                //if the square is not a mine
                 if (grid[rows][columns]==false)
                 {
                     int mineCount=countMinesHard(grid,rows,columns);
+                    //switch case for displaying number squares
                     switch (mineCount)
                     {
                         case 1:
@@ -183,17 +200,19 @@ inline void Hard()
                             sf::Sprite empty(Empty);
                             empty.setPosition({511.f+(30*rows),93.f+(30*columns)});
                             hard.draw(empty);
+                            //if an empty square is selected, the floodHard function is called to select other safe squares near it
                             if (selected[rows][columns])
                             {
-                                score=+floodHard(grid, selected, scored, rows, columns);
-                                ss.str(std::string());
-                                ss << score;
-                                Score.setString(ss.str());
+                                score+=floodHard(grid, selected, scored, rows, columns);
+                                scoreStream.str(std::string());
+                                scoreStream << score;
+                                Score.setString(scoreStream.str());
                             }
                             break;
                         }
                     }
                 }
+                //if the square is a mine
                 if (grid[rows][columns] == true)
                 {
                     sf :: Texture Mine("../../src/mineHard.png", false, sf :: IntRect({0,0},{30,30}));
@@ -207,6 +226,7 @@ inline void Hard()
         {
             for (columns=0; columns<30; columns++)
             {
+                //if the square is not selected then redraw it over the generated board
                 if (selected[rows][columns] == false)
                 {
                     sf :: Texture Square("../../src/emptySquareHard.png", false, sf :: IntRect({0,0},{30,30}));
@@ -220,6 +240,7 @@ inline void Hard()
         {
             for (columns=0; columns<30; columns++)
             {
+                //if the user has right-clicked on an unselected square then draw the flag
                 if (flagged[rows][columns] == true && selected[rows][columns] == false)
                 {
                     sf :: Texture Flag("../../src/minFlagHard.png", false, sf :: IntRect({0,0},{30,30}));
@@ -233,6 +254,7 @@ inline void Hard()
         {
             for (columns=0; columns<30; columns++)
             {
+                //if the user has selected a mine the game ends
                 if (selected[rows][columns] == true && grid[rows][columns] == true)
                     gameOver=1;
             }
@@ -243,10 +265,12 @@ inline void Hard()
             {
                 for (columns=0; columns<30; columns++)
                 {
+                    //if all safe squares are selected the game ends
                     if (selected[rows][columns] == true && grid[rows][columns] == false)
                     {
                         gameOver=2;
                     }
+                    //if any safe squares have not been selected then the game continues
                     else if (selected[rows][columns] == false && grid[rows][columns] == false)
                     {
                         gameOver=0;
@@ -257,8 +281,10 @@ inline void Hard()
                     break;
             }
         }
+        //switch case for both game over possibilities
         switch (gameOver)
         {
+            //game over for loss
             case 1:
                 for (rows=0; rows<30; rows++)
                 {
@@ -274,6 +300,7 @@ inline void Hard()
                     }
                 }
                 break;
+            //game over for win
             case 2:
                 for (rows=0; rows<30; rows++)
                 {
@@ -321,6 +348,7 @@ inline void Hard()
         hard.display();
     }
 }
+//function for counting the number of mines touching a safe square
 int countMinesHard(bool grid[30][30], int rows, int columns)
 {
     int checkHorizontal;
@@ -337,8 +365,10 @@ int countMinesHard(bool grid[30][30], int rows, int columns)
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<30) && (checkVertical >=0 && checkVertical<30))
             {
+                //increases the count whenever a mine is in one of the adjacent spaces
                 if (grid[checkHorizontal][checkVertical])
                     count++;
             }
@@ -346,6 +376,7 @@ int countMinesHard(bool grid[30][30], int rows, int columns)
     }
     return count;
 }
+//function for flood filling and scoring safe squares
 int floodHard(bool grid[30][30], bool selected[30][30], bool scored[30][30], int rows, int columns)
 {
     int score=0;
@@ -364,8 +395,10 @@ int floodHard(bool grid[30][30], bool selected[30][30], bool scored[30][30], int
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<30) && (checkVertical >=0 && checkVertical<30))
             {
+                //if the square is not a mine and has not already been scored, then that square is selected and then scored
                 if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;

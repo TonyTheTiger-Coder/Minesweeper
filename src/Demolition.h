@@ -10,20 +10,25 @@ inline void Demolition()
     void floodDemolition(bool grid[20][20], bool selected[20][20], int rows, int columns);
     int rows;
     int columns;
+    //grid is used to determine whether a square has a mine or not
     bool grid[20][20]={false};
+    //selected is used to determine whether a user has selected a square or not
     bool selected[20][20]={false};
+    //scored is used to determine whether a selected mine has been scored or not
     bool scored[20][20]={false};
     int gameOver=0;
     int mines=0;
     int score=0;
     int lives=5;
     int clicks=0;
-    std::stringstream ss;
-    ss << score;
-    std::stringstream ll;
-    ll << lives;
+    std::stringstream scoreStream;
+    scoreStream << score;
+    std::stringstream livesStream;
+    livesStream << lives;
+    //places 60 mines
     while (mines<60)
     {
+        //randomly selects a spot on the grid and places a mine if there is not one already
         rows=rand()%20;
         columns=rand()%20;
         if (!grid[rows][columns])
@@ -38,7 +43,7 @@ inline void Demolition()
     Score.setCharacterSize(55);
     Score.setPosition({849.f,110.f});
     Score.setFillColor(sf::Color::Black);
-    Score.setString(ss.str());
+    Score.setString(scoreStream.str());
     sf::Text LivesLeft(font);
     LivesLeft.setCharacterSize(55);
     LivesLeft.setPosition({1040.f,110.f});
@@ -48,16 +53,17 @@ inline void Demolition()
     Lives.setCharacterSize(50);
     Lives.setPosition({1250.f,115.f});
     Lives.setFillColor(sf::Color::Black);
-    Lives.setString(ll.str());
+    Lives.setString(livesStream.str());
     demolition.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     demolition.setFramerateLimit(60);
     while (demolition.isOpen())
     {
         while (const std :: optional event = demolition.pollEvent())
         {
-
+            //ends program if the user closes the window
             if (event->is<sf :: Event :: Closed>())
                 demolition.close();
+            //closes window if the ESC key is pressed
             else if (const auto* keyPressed = event->getIf<sf :: Event :: KeyPressed>())
             {
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
@@ -65,16 +71,19 @@ inline void Demolition()
             }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
+                //checks if the user has left-clicked on the grid or on one of the buttons
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
                     if (sf::Mouse::getPosition(demolition).x >=17 && sf::Mouse::getPosition(demolition).x <=189 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
                     {
                         demolition.close();
+                        //title window is reopened
                         title();
                     }
                     else if (sf::Mouse::getPosition(demolition).x >=1731 && sf::Mouse::getPosition(demolition).x <=1901 && sf::Mouse::getPosition(demolition).y >=14 && sf::Mouse::getPosition(demolition).y <=89)
                     {
                         demolition.close();
+                        //demolition window is reopened
                         Demolition();
                     }
                     for (rows=0; rows<20; rows++)
@@ -83,15 +92,17 @@ inline void Demolition()
                         {
                             if (gameOver==0 && clicks!=0 && sf::Mouse::getPosition(demolition).x >=610+(rows*35) && sf::Mouse::getPosition(demolition).x <=610+(1+rows)*35 && sf::Mouse::getPosition(demolition).y >=190+(columns*35) && sf::Mouse::getPosition(demolition).y <=190+(1+columns)*35)
                             {
+                                //if the square has not already been selected and does not have a mine then take away a life
                                 if (!grid[rows][columns] && !selected[rows][columns])
                                 {
                                     lives-=1;
-                                    ll.str(std::string());
-                                    ll << lives;
-                                    Lives.setString(ll.str());
+                                    livesStream.str(std::string());
+                                    livesStream << lives;
+                                    Lives.setString(livesStream.str());
                                 }
                                 selected[rows][columns]=true;
                             }
+                            //makes first click of the game not take away a life
                             else if (gameOver==0 && clicks==0 && sf::Mouse::getPosition(demolition).x >=610+(rows*35) && sf::Mouse::getPosition(demolition).x <=610+(1+rows)*35 && sf::Mouse::getPosition(demolition).y >=190+(columns*35) && sf::Mouse::getPosition(demolition).y <=190+(1+columns)*35)
                             {
                                 selected[rows][columns]=true;
@@ -110,9 +121,11 @@ inline void Demolition()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the square is not a mine
                 if (grid[rows][columns] == false)
                 {
                     int mineCount=countMinesMedium(grid,rows,columns);
+                    //switch case for displaying number squares
                     switch (mineCount)
                     {
                         case 1:
@@ -185,6 +198,7 @@ inline void Demolition()
                             sf::Sprite empty(Empty);
                             empty.setPosition({610.f+(35*rows),190.f+(35*columns)});
                             demolition.draw(empty);
+                            //if an empty square is selected, the floodDemolition function is called to select other safe squares near it
                             if (selected[rows][columns])
                             {
                                 floodDemolition(grid, selected, rows, columns);
@@ -193,19 +207,22 @@ inline void Demolition()
                         }
                     }
                 }
+                //if the square is a mine
                 if (grid[rows][columns] == true)
                 {
                     sf :: Texture Mine("../../src/mineMedium.png", false, sf :: IntRect({0,0},{35,35}));
                     sf::Sprite mine(Mine);
                     mine.setPosition({610.f+(35*rows),190.f+(35*columns)});
                     demolition.draw(mine);
+                    //if the square has been selected and has not been scored yet then add 500 points
                     if (selected[rows][columns] && !scored[rows][columns])
                     {
                         scored[rows][columns] = true;
                         score+=500;
-                        ss.str(std::string());
-                        ss << score;
-                        Score.setString(ss.str());
+                        scoreStream.str(std::string());
+                        scoreStream << score;
+                        Score.setString(scoreStream.str());
+                        //floodDemolition is used to select safe squares adjacent to the mine to give player more info
                         floodDemolition(grid, selected, rows, columns);
                     }
                 }
@@ -216,6 +233,7 @@ inline void Demolition()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the square is not selected then redraw it over the generated board
                 if (selected[rows][columns] == false)
                 {
                     sf :: Texture Square("../../src/emptySquareMedium.png", false, sf :: IntRect({0,0},{35,35}));
@@ -229,6 +247,7 @@ inline void Demolition()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the user presses a safe square and is out of lives the game ends
                 if (selected[rows][columns] == true && grid[rows][columns] == false && lives<=0)
                     gameOver=1;
             }
@@ -239,10 +258,12 @@ inline void Demolition()
             {
                 for (columns=0; columns<20; columns++)
                 {
+                    //if all mines are selected the game ends
                     if (selected[rows][columns] == true && grid[rows][columns] == true)
                     {
                         gameOver=2;
                     }
+                    //if any mines are not selected then the game continues
                     else if (selected[rows][columns] == false && grid[rows][columns] == true)
                     {
                         gameOver=0;
@@ -253,8 +274,10 @@ inline void Demolition()
                     break;
             }
         }
+        //switch case for both game over possibilities
         switch (gameOver)
         {
+            //game over for loss
             case 1:
                 for (rows=0; rows<20; rows++)
                 {
@@ -269,7 +292,8 @@ inline void Demolition()
                         }
                     }
                 }
-            break;
+                break;
+            //game over for win
             case 2:
                 for (rows=0; rows<20; rows++)
                 {
@@ -319,6 +343,7 @@ inline void Demolition()
         demolition.display();
     }
 }
+//function for counting the number of mines touching a safe square
 int countMinesDemolition(bool grid[20][20], int rows, int columns)
 {
     int checkHorizontal;
@@ -335,8 +360,10 @@ int countMinesDemolition(bool grid[20][20], int rows, int columns)
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
             {
+                //increases the count whenever a mine is in one of the adjacent spaces
                 if (grid[checkHorizontal][checkVertical])
                     count++;
             }
@@ -344,6 +371,7 @@ int countMinesDemolition(bool grid[20][20], int rows, int columns)
     }
     return count;
 }
+//function for flood filling safe spaces and giving info when clicking on mines
 void floodDemolition(bool grid[20][20], bool selected[20][20], int rows, int columns)
 {
     int checkHorizontal;
@@ -361,8 +389,10 @@ void floodDemolition(bool grid[20][20], bool selected[20][20], int rows, int col
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
             {
+                //if the square is not a mine then select it
                 if (!grid[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;

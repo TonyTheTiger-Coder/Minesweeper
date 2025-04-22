@@ -10,17 +10,23 @@ inline void Medium()
     int floodMedium(bool grid[20][20], bool selected[20][20], bool scored[20][20], int rows, int columns);
     int rows;
     int columns;
+    //grid is used to determine whether a square has a mine or not
     bool grid[20][20]={false};
+    //selected is used to determine whether a user has selected a square or not
     bool selected[20][20]={false};
+    //scored is used to determine whether a selected square triggered by floodMedium has already been scored or not
     bool scored[20][20]={false};
+    //flagged is used to determine whether a user has placed a flag on a square or not
     bool flagged[20][20]={false};
     int gameOver=0;
     int mines=0;
     int score=0;
-    std::stringstream ss;
-    ss << score;
+    std::stringstream scoreStream;
+    scoreStream << score;
+    //places 60 mines
     while (mines<60)
     {
+        //randomly selects a spot on the grid and places a mine if there is not one already
         rows=rand()%20;
         columns=rand()%20;
         if (!grid[rows][columns])
@@ -35,15 +41,17 @@ inline void Medium()
     Score.setCharacterSize(55);
     Score.setPosition({849.f,110.f});
     Score.setFillColor(sf::Color::Black);
-    Score.setString(ss.str());
+    Score.setString(scoreStream.str());
     medium.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     medium.setFramerateLimit(60);
     while (medium.isOpen())
     {
         while (const std :: optional event = medium.pollEvent())
         {
+            //ends program if the user closes the window
             if (event->is<sf :: Event :: Closed>())
                 medium.close();
+            //closes window if the ESC key is pressed
             else if (const auto* keyPressed = event->getIf<sf :: Event :: KeyPressed>())
             {
                 if (keyPressed->scancode == sf :: Keyboard :: Scancode :: Escape)
@@ -51,16 +59,19 @@ inline void Medium()
             }
             else if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
             {
+                //checks if the user has right-clicked on the grid
                 if (mouseButtonReleased->button == sf::Mouse::Button::Right)
                 {
                     for (rows=0; rows<20; rows++)
                     {
                         for (columns=0; columns<20; columns++)
                         {
+                            //if square is not currently flagged, place a flag
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(medium).x >=610+(rows*35) && sf::Mouse::getPosition(medium).x <=610+(1+rows)*35 && sf::Mouse::getPosition(medium).y >=190+(columns*35) && sf::Mouse::getPosition(medium).y <=190+(1+columns)*35)
                             {
                                 flagged[rows][columns]=true;
                             }
+                            //if square is currently flagged, then remove the flag
                             else if (gameOver==0 && flagged[rows][columns]==true && sf::Mouse::getPosition(medium).x >=610+(rows*35) && sf::Mouse::getPosition(medium).x <=610+(1+rows)*35 && sf::Mouse::getPosition(medium).y >=190+(columns*35) && sf::Mouse::getPosition(medium).y <=190+(1+columns)*35)
                             {
                                 flagged[rows][columns]=false;
@@ -68,16 +79,19 @@ inline void Medium()
                         }
                     }
                 }
+                //checks if the user has left-clicked on the grid or on one of the buttons
                 if (mouseButtonReleased->button == sf::Mouse::Button::Left)
                 {
                     if (sf::Mouse::getPosition(medium).x >=17 && sf::Mouse::getPosition(medium).x <=189 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
                     {
                         medium.close();
+                        //difficulty window is reopened
                         difficulty();
                     }
                     else if (sf::Mouse::getPosition(medium).x >=1731 && sf::Mouse::getPosition(medium).x <=1901 && sf::Mouse::getPosition(medium).y >=14 && sf::Mouse::getPosition(medium).y <=89)
                     {
                         medium.close();
+                        //medium window is reopened
                         Medium();
                     }
                     for (rows=0; rows<20; rows++)
@@ -86,12 +100,13 @@ inline void Medium()
                         {
                             if (gameOver==0 && flagged[rows][columns]==false && sf::Mouse::getPosition(medium).x >=610+(rows*35) && sf::Mouse::getPosition(medium).x <=610+(1+rows)*35 && sf::Mouse::getPosition(medium).y >=190+(columns*35) && sf::Mouse::getPosition(medium).y <=190+(1+columns)*35)
                             {
+                                //if the square has not already been selected and there is no mine, then add 100 points
                                 if (!grid[rows][columns] && !selected[rows][columns])
                                 {
                                     score+=100;
-                                    ss.str(std::string());
-                                    ss << score;
-                                    Score.setString(ss.str());
+                                    scoreStream.str(std::string());
+                                    scoreStream << score;
+                                    Score.setString(scoreStream.str());
                                 }
                                 selected[rows][columns]=true;
                             }
@@ -108,9 +123,11 @@ inline void Medium()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the square is not a mine
                 if (grid[rows][columns] == false)
                 {
                     int mineCount=countMinesMedium(grid,rows,columns);
+                    //switch case for displaying number squares
                     switch (mineCount)
                     {
                         case 1:
@@ -183,17 +200,19 @@ inline void Medium()
                             sf::Sprite empty(Empty);
                             empty.setPosition({610.f+(35*rows),190.f+(35*columns)});
                             medium.draw(empty);
+                            //if an empty square is selected, the floodMedium function is called to select other safe squares near it
                             if (selected[rows][columns])
                             {
                                 score+=floodMedium(grid, selected, scored, rows, columns);
-                                ss.str(std::string());
-                                ss << score;
-                                Score.setString(ss.str());
+                                scoreStream.str(std::string());
+                                scoreStream << score;
+                                Score.setString(scoreStream.str());
                             }
                             break;
                         }
                     }
                 }
+                //if the square is a mine
                 if (grid[rows][columns] == true)
                 {
                     sf :: Texture Mine("../../src/mineMedium.png", false, sf :: IntRect({0,0},{35,35}));
@@ -207,6 +226,7 @@ inline void Medium()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the square is not selected then redraw it over the generated board
                 if (selected[rows][columns] == false)
                 {
                     sf :: Texture Square("../../src/emptySquareMedium.png", false, sf :: IntRect({0,0},{35,35}));
@@ -220,6 +240,7 @@ inline void Medium()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the user has right-clicked on an unselected square then draw the flag
                 if (flagged[rows][columns] == true && selected[rows][columns] == false)
                 {
                     sf :: Texture Flag("../../src/minFlagMedium.png", false, sf :: IntRect({0,0},{35,35}));
@@ -233,6 +254,7 @@ inline void Medium()
         {
             for (columns=0; columns<20; columns++)
             {
+                //if the user has selected a mine the game ends
                 if (selected[rows][columns] == true && grid[rows][columns] == true)
                     gameOver=1;
             }
@@ -243,10 +265,12 @@ inline void Medium()
             {
                 for (columns=0; columns<20; columns++)
                 {
+                    //if all safe squares are selected the game ends
                     if (selected[rows][columns] == true && grid[rows][columns] == false)
                     {
                         gameOver=2;
                     }
+                    //if any safe squares have not been selected then the game continues
                     else if (selected[rows][columns] == false && grid[rows][columns] == false)
                     {
                         gameOver=0;
@@ -257,8 +281,10 @@ inline void Medium()
                     break;
             }
         }
+        //switch case for both game over possibilities
         switch (gameOver)
         {
+            //game over for loss
             case 1:
                 for (rows=0; rows<20; rows++)
                 {
@@ -274,6 +300,7 @@ inline void Medium()
                     }
                 }
                 break;
+            //game over for win
             case 2:
                 for (rows=0; rows<20; rows++)
                 {
@@ -321,6 +348,7 @@ inline void Medium()
         medium.display();
     }
 }
+//function for counting the number of mines touching a safe square
 int countMinesMedium(bool grid[20][20], int rows, int columns)
 {
     int checkHorizontal;
@@ -337,8 +365,10 @@ int countMinesMedium(bool grid[20][20], int rows, int columns)
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
             {
+                //increases the count whenever a mine is in one of the adjacent spaces
                 if (grid[checkHorizontal][checkVertical])
                     count++;
             }
@@ -346,6 +376,7 @@ int countMinesMedium(bool grid[20][20], int rows, int columns)
     }
     return count;
 }
+//function for flood filling and scoring safe squares
 int floodMedium(bool grid[20][20], bool selected[20][20], bool scored[20][20], int rows, int columns)
 {
     int score=0;
@@ -364,8 +395,10 @@ int floodMedium(bool grid[20][20], bool selected[20][20], bool scored[20][20], i
                 checkHorizontal=rows+horizontal;
                 checkVertical=columns+vertical;
             }
+            //makes sure the array stays in bounds
             if ((checkHorizontal >=0 && checkHorizontal<20) && (checkVertical >=0 && checkVertical<20))
             {
+                //if the square is not a mine and has not already been scored, then that square is selected and then scored
                 if (!grid[checkHorizontal][checkVertical] && !scored[checkHorizontal][checkVertical])
                 {
                     selected[checkHorizontal][checkVertical]=true;

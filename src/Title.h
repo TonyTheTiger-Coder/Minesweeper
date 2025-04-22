@@ -12,7 +12,6 @@ inline void title()
     sf :: RenderWindow title;
     title.create(sf :: VideoMode(), "MINESWEEPER", sf :: State :: Fullscreen);
     title.setFramerateLimit(60);
-    // run the program as long as the window is open
     while (title.isOpen())
     {
         bool mouseHoverPlay,mouseHoverDemolition,mouseHoverExit;
@@ -36,11 +35,13 @@ inline void title()
                     if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=680 && sf::Mouse::getPosition(title).y <=780)
                     {
                         title.close();
+                        //difficulty window opens
                         difficulty();
                     }
                     else if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=817 && sf::Mouse::getPosition(title).y <=910)
                     {
                         title.close();
+                        //demolition window opens
                         Demolition();
                     }
                     else if (sf::Mouse::getPosition(title).x >=751 && sf::Mouse::getPosition(title).x <=1175 && sf::Mouse::getPosition(title).y >=953 && sf::Mouse::getPosition(title).y <=1044)
